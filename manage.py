@@ -4,15 +4,16 @@ import unittest
 
 from flask_script import Manager
 
-from project import app, db
+from project import create_app, db
 
 
+app = create_app()
 manager = Manager(app)
 
 
 @manager.command
 def recreate_db():
-    """Recrie o banco de dados"""
+    """Recria o banco de dados"""
     db.drop_all()
     db.create_all()
     db.session.commit()

@@ -1,41 +1,27 @@
-# project/__iniit__.py
+# project/__init__.py
 
 import os
-import datetime
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
 
-# Instancia a aplicação
-app = Flask(__name__)
-
-# Define a configuração
-app_settings = os.getenv('APP_SETTINGS')
-app.config.from_object(app_settings)
-
 # Instancia o banco de dados
-db = SQLAlchemy(app)
+db = SQLAlchemy()
 
 
-# Modelo
-class User(db.Model):
-    __tableusers_ = "users"
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    username = db.Column(db.String(128), nullable=False)
-    email = db.Column(db.String(128), nullable=False)
-    active = db.Column(db.Boolean(), default=False, nullable=False)
-    created_at = db.Column(db.DateTime, nullable=False)
+def create_app():
+    # Instancia a aplicação
+    app = Flask(__name__)
 
-    def __init__(self, username, email):
-        self.username = username
-        self.email = email
-        self.created_at = datetime.datetime.now()
+    # Define a configuração
+    app_settings = os.getenv('APP_SETTINGS')
+    app.config.from_object(app_settings)
 
+    # Define as extensões
+    db.init_app(app)
 
-# Rotas
-@app.route('/ping', methods=['GET'])
-def ping_pong():
-    return jsonify({
-        'status': 'success',
-        'message': 'pong!'
-    })
+    # Registra as blueprints
+    from project.api.views import users_blueprint
+    app.register_blueprint(users_blueprint)
+
+    return app
